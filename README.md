@@ -14,3 +14,18 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Deployment Guide
+
+### Frontend (React Vite)
+Deploy ke Vercel dari root project.
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Install Command**: `npm install`
+*(Konfigurasi SPA routing sudah ditangani oleh file `vercel.json`)*
+
+### Backend (Laravel)
+Deploy ke Railway dari folder `backend`.
+- **Root Directory Railway**: `backend`
+- **Database**: MySQL Railway
+- **Post-Deploy**: Jalankan migration dan seeder setelah deploy (`php artisan migrate --seed`).

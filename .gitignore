@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Deployment and Environment
+.env
+.env.local
+.env.production
+backend/vendor/
+backend/.env
+backend/storage/logs/
+backend/bootstrap/cache/*.php

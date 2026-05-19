@@ -25,3 +25,9 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+npm-debug.log
+yarn-error.log
+/.fleet
+/storage/logs/*
+/bootstrap/cache/*.php
