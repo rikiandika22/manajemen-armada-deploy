@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Bell, Search } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
@@ -22,6 +22,19 @@ export default function Topbar({ isOpen, setIsOpen }) {
   const { pathname } = useLocation();
   const isDash = pathname === '/dashboard';
   const [showNotif, setShowNotif] = useState(false);
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotif(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <header
@@ -53,7 +66,7 @@ export default function Topbar({ isOpen, setIsOpen }) {
         </div>
 
         {/* Bell */}
-        <div className="relative">
+        <div className="relative" ref={notifRef}>
           <button 
             onClick={() => setShowNotif(!showNotif)}
             className="relative w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
