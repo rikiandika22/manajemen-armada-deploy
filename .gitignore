@@ -31,3 +31,5 @@ backend/vendor/
 backend/.env
 backend/storage/logs/
 backend/bootstrap/cache/*.php
+
+docs/
