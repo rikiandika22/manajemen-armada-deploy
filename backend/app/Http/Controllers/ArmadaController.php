@@ -51,17 +51,31 @@ class ArmadaController extends Controller
         $armada = Armada::create($validated);
 
         if ($request->hasFile('images')) {
+            $cloudinary = app(\App\Services\CloudinaryUploadService::class);
             $sortOrder = 0;
             foreach ($request->file('images') as $index => $file) {
                 if ($sortOrder >= 5) break; // Maksimal 5 foto
 
-                $path = $file->store('armada', 'public');
-                $armada->images()->create([
-                    'image_path' => $path,
-                    'is_primary' => $sortOrder === 0, // Gambar pertama otomatis jadi primary
-                    'sort_order' => $sortOrder
-                ]);
-                $sortOrder++;
+                $uploadResult = $cloudinary->uploadImage($file, 'sumber-agung/armada');
+                
+                if ($uploadResult) {
+                    $armada->images()->create([
+                        'image_path' => $uploadResult['secure_url'],
+                        'cloudinary_public_id' => $uploadResult['public_id'],
+                        'is_primary' => $sortOrder === 0, // Gambar pertama otomatis jadi primary
+                        'sort_order' => $sortOrder
+                    ]);
+                    $sortOrder++;
+                } else {
+                    // Fallback to local storage if Cloudinary fails
+                    $path = $file->store('armada', 'public');
+                    $armada->images()->create([
+                        'image_path' => $path,
+                        'is_primary' => $sortOrder === 0,
+                        'sort_order' => $sortOrder
+                    ]);
+                    $sortOrder++;
+                }
             }
         }
         
@@ -124,7 +138,11 @@ class ArmadaController extends Controller
      */
     public function destroy(Armada $armada)
     {
+        $cloudinary = app(\App\Services\CloudinaryUploadService::class);
         foreach ($armada->images as $image) {
+            if ($image->cloudinary_public_id) {
+                $cloudinary->deleteByPublicId($image->cloudinary_public_id);
+            }
             if (\Illuminate\Support\Facades\Storage::disk('public')->exists($image->image_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($image->image_path);
             }

@@ -65,6 +65,28 @@ Jika Anda ingin mengakses database Railway dari laptop lokal (misalnya menggunak
 
 ## Pengecekan Koneksi Database
 
+Jika ada error terkait `nodename nor servname provided` saat seeder, pastikan Anda tidak menjalankan seeder dari laptop dengan koneksi mengarah ke `.internal`.
+
+---
+
+## 3. Cloudinary Setup (Penyimpanan Media)
+Saat ini sistem backend telah dimigrasi untuk menggunakan **Cloudinary** sebagai media penyimpanan utama untuk gambar armada dan bukti pembayaran, tidak lagi menggunakan storage lokal server.
+
+### Cara Pengaturan:
+1. Buat akun di [Cloudinary](https://cloudinary.com/).
+2. Ambil **Cloudinary Environment Variable (`CLOUDINARY_URL`)** dari halaman Dashboard Console Anda.
+3. Tambahkan Variabel tersebut ke Railway pada service backend (di bagian Variables):
+   - **`CLOUDINARY_URL`** = `cloudinary://API_KEY:API_SECRET@CLOUD_NAME`
+4. **Catatan:** Jangan pernah meng-commit kredensial/API Key Cloudinary ke GitHub. Semua konfigurasi hanya diatur via Railway Variables.
+5. Setelah menambahkan variable tersebut, lakukan **redeploy** pada service backend di Railway.
+
+### Pengujian Cloudinary:
+Setelah redeploy selesai, pastikan koneksi berjalan dengan baik:
+- Coba **upload gambar armada** dari Web Admin Vercel.
+- Coba **upload bukti pembayaran** dari Mobile App (Flutter).
+- Pastikan gambar berhasil tersimpan dan Anda dapat melihat file baru masuk di Cloudinary Media Library pada folder `sumber-agung/armada` atau `sumber-agung/payment-proofs`.
+- Gambar lama yang diupload sebelumnya (local storage) tetap akan tampil sebagai fallback dengan sistem yang baru.
+
 Jika Anda ingin melihat konfigurasi database yang sedang aktif (tanpa menampilkan password) untuk memastikan tidak salah koneksi, Anda bisa menggunakan command custom (jika tersedia):
 ```bash
 php artisan app:check-db-config

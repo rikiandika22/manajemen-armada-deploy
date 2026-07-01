@@ -21,15 +21,27 @@ class ArmadaImageController extends Controller
             ], 422);
         }
 
-        $path = $request->file('image')->store('armada', 'public');
-        
+        $cloudinary = app(\App\Services\CloudinaryUploadService::class);
+        $uploadResult = $cloudinary->uploadImage($request->file('image'), 'sumber-agung/armada-gallery');
+
         $isFirst = $armada->images()->count() === 0;
 
-        $image = $armada->images()->create([
-            'image_path' => $path,
-            'is_primary' => $isFirst,
-            'sort_order' => $armada->images()->count()
-        ]);
+        if ($uploadResult) {
+            $image = $armada->images()->create([
+                'image_path' => $uploadResult['secure_url'],
+                'cloudinary_public_id' => $uploadResult['public_id'],
+                'is_primary' => $isFirst,
+                'sort_order' => $armada->images()->count()
+            ]);
+        } else {
+            // Fallback
+            $path = $request->file('image')->store('armada', 'public');
+            $image = $armada->images()->create([
+                'image_path' => $path,
+                'is_primary' => $isFirst,
+                'sort_order' => $armada->images()->count()
+            ]);
+        }
 
         return response()->json([
             'message' => 'Foto berhasil diunggah',
@@ -39,6 +51,11 @@ class ArmadaImageController extends Controller
 
     public function destroy(ArmadaImage $image)
     {
+        if ($image->cloudinary_public_id) {
+            $cloudinary = app(\App\Services\CloudinaryUploadService::class);
+            $cloudinary->deleteByPublicId($image->cloudinary_public_id);
+        }
+
         if (Storage::disk('public')->exists($image->image_path)) {
             Storage::disk('public')->delete($image->image_path);
         }

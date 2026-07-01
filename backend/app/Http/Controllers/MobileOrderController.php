@@ -184,7 +184,12 @@ class MobileOrderController extends Controller
             ]);
 
             $file = $request->file('payment_proof');
-            $path = $file->store('payment_proofs', 'public');
+            
+            $cloudinary = app(\App\Services\CloudinaryUploadService::class);
+            $uploadResult = $cloudinary->uploadImage($file, 'sumber-agung/payment-proofs');
+            
+            $path = $uploadResult ? $uploadResult['secure_url'] : $file->store('payment_proofs', 'public');
+            $publicId = $uploadResult ? $uploadResult['public_id'] : null;
             
             $paymentAccount = \App\Models\PaymentAccount::findOrFail($request->payment_account_id);
             
@@ -197,6 +202,7 @@ class MobileOrderController extends Controller
                 'bank_account_name' => $paymentAccount->account_holder_name,
                 'amount' => $calculatedDpAmount ?? $calculatedTotalPrice ?? 0,
                 'payment_proof_path' => $path,
+                'cloudinary_public_id' => $publicId,
                 'payment_status' => 'Menunggu Validasi',
             ]);
         }
@@ -456,7 +462,11 @@ class MobileOrderController extends Controller
 
         try {
             $file = $request->file('payment_proof');
-            $path = $file->store('payment_proofs', 'public');
+            $cloudinary = app(\App\Services\CloudinaryUploadService::class);
+            $uploadResult = $cloudinary->uploadImage($file, 'sumber-agung/payment-proofs');
+            
+            $path = $uploadResult ? $uploadResult['secure_url'] : $file->store('payment_proofs', 'public');
+            $publicId = $uploadResult ? $uploadResult['public_id'] : null;
 
             $paymentAccount = \App\Models\PaymentAccount::findOrFail($request->payment_account_id);
 
@@ -470,6 +480,7 @@ class MobileOrderController extends Controller
                     'bank_account_name' => $paymentAccount->account_holder_name,
                     'amount' => $order->dp_amount ?? $order->total_price,
                     'payment_proof_path' => $path,
+                    'cloudinary_public_id' => $publicId,
                     'payment_status' => 'Menunggu Validasi',
                     'rejected_reason' => null,
                 ]);
@@ -483,6 +494,7 @@ class MobileOrderController extends Controller
                     'bank_account_name' => $paymentAccount->account_holder_name,
                     'amount' => $order->dp_amount ?? $order->total_price,
                     'payment_proof_path' => $path,
+                    'cloudinary_public_id' => $publicId,
                     'payment_status' => 'Menunggu Validasi',
                 ]);
             }
@@ -564,7 +576,11 @@ class MobileOrderController extends Controller
 
         try {
             $file = $request->file('payment_proof');
-            $path = $file->store('payment_proofs', 'public');
+            $cloudinary = app(\App\Services\CloudinaryUploadService::class);
+            $uploadResult = $cloudinary->uploadImage($file, 'sumber-agung/settlement-proofs');
+            
+            $path = $uploadResult ? $uploadResult['secure_url'] : $file->store('payment_proofs', 'public');
+            $publicId = $uploadResult ? $uploadResult['public_id'] : null;
             
             $paymentAccount = \App\Models\PaymentAccount::findOrFail($request->payment_account_id);
 
@@ -577,6 +593,7 @@ class MobileOrderController extends Controller
                 'bank_account_name' => $paymentAccount->account_holder_name,
                 'amount' => $order->remaining_payment,
                 'payment_proof_path' => $path,
+                'settlement_cloudinary_public_id' => $publicId, // Or we could just use cloudinary_public_id since it's a polymorphic relation essentially but we are storing in the same table. Wait, actually we added both to payments table!
                 'payment_status' => 'Menunggu Validasi',
             ]);
 

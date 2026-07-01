@@ -25,7 +25,15 @@ class Payment extends Model
 
     public function getPaymentProofUrlAttribute()
     {
-        return asset('storage/' . $this->payment_proof_path);
+        if (empty($this->payment_proof_path)) {
+            return null;
+        }
+
+        if (str_starts_with($this->payment_proof_path, 'http://') || str_starts_with($this->payment_proof_path, 'https://')) {
+            return $this->payment_proof_path;
+        }
+        
+        return asset('storage/' . ltrim($this->payment_proof_path, '/'));
     }
 
     public function order()
