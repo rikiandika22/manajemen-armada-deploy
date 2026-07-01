@@ -23,10 +23,13 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Admin Sumber Agung',
                 'username' => 'admin',
-                'password' => Hash::make('password123'),
                 'role' => 'admin',
+                'email_verified_at' => now(),
+                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
             ]
         );
+
+        $this->command?->info('Admin user seeded or updated successfully.');
 
         $this->call([
             ArmadaSeeder::class,

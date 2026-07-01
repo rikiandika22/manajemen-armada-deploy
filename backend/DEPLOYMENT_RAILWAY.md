@@ -52,6 +52,15 @@ php artisan migrate --force
 php artisan db:seed --force
 ```
 
+**Catatan Penting Seeder di Railway:**
+- Jika memakai Railway, seed harus dijalankan di environment Railway atau dengan variable database production yang benar.
+- Jangan menganggap file seeder di GitHub otomatis mengisi database. Seeder hanya berjalan jika command `db:seed` dieksekusi secara manual.
+- Login admin default:
+  - email: `admin@sumberagungtrans.test`
+  - username: `admin`
+  - password: `password123`
+- Setelah login berhasil, pastikan untuk **menghapus endpoint `debug-admin-check` dan `debug-admin-password-check`** di `routes/api.php` demi keamanan.
+
 Jika Anda ingin mengakses database Railway dari laptop lokal (misalnya menggunakan TablePlus atau command artisan lokal), gunakan koneksi **TCP Proxy (Public Database URL)** dari Railway, bukan host internal.
 
 ## Pengecekan Koneksi Database

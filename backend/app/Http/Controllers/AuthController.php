@@ -9,32 +9,38 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $request->validate([
-            'login' => 'required',
-            'password' => 'required',
-        ]);
+        $identifier = $request->input('email') ?? $request->input('username') ?? $request->input('login');
+        $password = $request->input('password');
 
-        $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-
-        $credentials = [
-            $loginType => $request->login,
-            'password' => $request->password,
-        ];
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('auth_token')->plainTextToken;
-
+        if (!$identifier || !$password) {
             return response()->json([
-                'message' => 'Login berhasil',
-                'token' => $token,
-                'user' => $user
-            ]);
+                'message' => 'Email/Username dan Password harus diisi'
+            ], 400);
         }
 
+        $user = \App\Models\User::where('email', $identifier)
+            ->orWhere('username', $identifier)
+            ->first();
+
+        if (!$user || !\Illuminate\Support\Facades\Hash::check($password, $user->password)) {
+            return response()->json([
+                'message' => 'Email/Username atau Password salah'
+            ], 401);
+        }
+
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Akun tidak memiliki akses admin'
+            ], 403);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
-            'message' => 'Email/Username atau Password salah'
-        ], 401);
+            'message' => 'Login berhasil',
+            'token' => $token,
+            'user' => $user
+        ]);
     }
 
     public function me(Request $request)

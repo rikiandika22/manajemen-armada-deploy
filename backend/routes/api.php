@@ -11,6 +11,28 @@ use App\Http\Controllers\MobileAuthController;
 use App\Http\Controllers\MobileOrderController;
 use App\Http\Controllers\MobileFleetController;
 
+// TEMPORARY DEBUG ROUTE - remove after production login works.
+Route::get('/debug-admin-check', function () {
+    $admin = \App\Models\User::where('email', 'admin@sumberagungtrans.test')
+        ->select('id', 'name', 'email', 'username', 'role', 'created_at', 'updated_at')
+        ->first();
+
+    return response()->json([
+        'admin_exists' => $admin !== null,
+        'admin' => $admin,
+    ]);
+});
+
+// TEMPORARY DEBUG ROUTE - remove after production login works.
+Route::post('/debug-admin-password-check', function (\Illuminate\Http\Request $request) {
+    $admin = \App\Models\User::where('email', 'admin@sumberagungtrans.test')->first();
+
+    return response()->json([
+        'admin_exists' => $admin !== null,
+        'password_matches' => $admin ? \Illuminate\Support\Facades\Hash::check($request->password, $admin->password) : false,
+    ]);
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 
 // Mobile API Routes
