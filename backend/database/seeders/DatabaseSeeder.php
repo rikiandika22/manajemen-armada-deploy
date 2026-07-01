@@ -18,13 +18,15 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Admin Sumber Agung',
-            'email' => 'admin@sumberagungtrans.test',
-            'username' => 'admin',
-            'password' => Hash::make('password123'),
-            'role' => 'admin',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@sumberagungtrans.test'],
+            [
+                'name' => 'Admin Sumber Agung',
+                'username' => 'admin',
+                'password' => Hash::make('password123'),
+                'role' => 'admin',
+            ]
+        );
 
         $this->call([
             ArmadaSeeder::class,
