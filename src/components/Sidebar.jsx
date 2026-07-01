@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import api from '../services/api';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const NAV = [
   { to: '/dashboard',  Icon: LayoutDashboard, label: 'Dashboard'   },
@@ -22,6 +23,14 @@ const ACTIVE_COLOR = '#a3e635';
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const navigate = useNavigate();
+  const { notifications } = useNotifications();
+
+  const getBadgeCount = (label) => {
+    if (label === 'Pemesanan') return notifications.pemesanan?.count || 0;
+    if (label === 'Pembayaran') return notifications.pembayaran?.count || 0;
+    if (label === 'Jadwal') return notifications.jadwal?.count || 0;
+    return 0;
+  };
 
   return (
     <aside
@@ -57,50 +66,39 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
       {/* ── Nav ── */}
       <nav className="flex-1 px-3 py-4 space-y-3 overflow-x-hidden">
-        {NAV.map(({ to, Icon, label }) => (
-          <NavLink key={to} to={to} className="block" title={!isOpen ? label : undefined}>
-            {({ isActive }) => (
-              <div
-                className={`flex items-center ${isOpen ? 'justify-start gap-3 px-4' : 'justify-center px-0'} py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all duration-150`}
-                style={{
-                  backgroundColor: isActive ? ACTIVE_COLOR : 'transparent',
-                  color: isActive ? '#0f172a' : '#94a3b8',
-                }}
-                onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#e2e8f0'; } }}
-                onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#94a3b8'; } }}
-              >
-                <Icon size={17} className="flex-shrink-0" />
-                {isOpen && <span className="whitespace-nowrap">{label}</span>}
-              </div>
-            )}
-          </NavLink>
-        ))}
+        {NAV.map(({ to, Icon, label }) => {
+          const count = getBadgeCount(label);
+          return (
+            <NavLink key={to} to={to} className="block" title={!isOpen ? label : undefined}>
+              {({ isActive }) => (
+                <div
+                  className={`relative flex items-center ${isOpen ? 'justify-between px-4' : 'justify-center px-0'} py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all duration-150`}
+                  style={{
+                    backgroundColor: isActive ? ACTIVE_COLOR : 'transparent',
+                    color: isActive ? '#0f172a' : '#94a3b8',
+                  }}
+                  onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#e2e8f0'; } }}
+                  onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#94a3b8'; } }}
+                >
+                  <div className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'}`}>
+                    <Icon size={17} className="flex-shrink-0" />
+                    {isOpen && <span className="whitespace-nowrap">{label}</span>}
+                  </div>
+                  {count > 0 && (
+                    <span 
+                      className={`flex items-center justify-center rounded-full text-[10px] font-bold ${isOpen ? 'min-w-[20px] h-[20px] px-1' : 'absolute top-1 right-1 w-4 h-4 text-[8px]'}`}
+                      style={{ backgroundColor: '#ef4444', color: '#fff' }}
+                    >
+                      {count > 99 ? '99+' : count}
+                    </span>
+                  )}
+                </div>
+              )}
+            </NavLink>
+          );
+        })}
       </nav>
 
-      {/* ── Download App ── */}
-      {isOpen && (
-        <div className="mx-3 mb-3">
-          <div className="rounded-2xl px-4 py-3.5" style={{ backgroundColor: '#1e293b' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(163,230,53,0.15)' }}
-                >
-                  <Smartphone size={16} style={{ color: ACTIVE_COLOR }} />
-                </div>
-                <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#94a3b8' }}>Download App</span>
-              </div>
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ backgroundColor: ACTIVE_COLOR }}
-              >
-                <ArrowUpRight size={14} color="#0f172a" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Bottom Actions ── */}
       <div className="px-3 pb-5 space-y-2">

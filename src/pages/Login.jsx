@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, User } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, User, AlertCircle, X, Check } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import api from '../services/api';
 
@@ -9,6 +9,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ identifier: '', password: '' });
   const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -82,9 +83,21 @@ export default function Login() {
           </div>
 
           {error && (
-            <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600 font-medium flex items-center">
-              <span className="mr-2">⚠️</span>
-              {error}
+            <div className="mb-6 p-3.5 rounded-xl bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 shadow-sm flex items-start gap-3 animate-[slideDown_0.3s_ease-out]">
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center mt-0.5">
+                <AlertCircle size={16} className="text-red-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-red-700 mb-0.5">Login Gagal</p>
+                <p className="text-xs text-red-600/80 leading-relaxed">{error}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setError('')}
+                className="flex-shrink-0 w-6 h-6 rounded-full hover:bg-red-100 flex items-center justify-center transition-colors"
+              >
+                <X size={13} className="text-red-400" />
+              </button>
             </div>
           )}
 
@@ -139,13 +152,22 @@ export default function Login() {
 
             {/* Options */}
             <div className="flex items-center justify-between pt-1">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-3.5 h-3.5 rounded border-slate-300 text-[#a3e635] focus:ring-[#a3e635] cursor-pointer"
-                />
-                <span className="text-xs text-slate-500 font-medium">Ingat saya</span>
-              </label>
+              <button
+                type="button"
+                onClick={() => setRememberMe(!rememberMe)}
+                className="flex items-center gap-2.5 cursor-pointer group"
+              >
+                <div
+                  className={`w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center transition-all duration-200 ${
+                    rememberMe
+                      ? 'bg-[#a3e635] border-[#84cc16] shadow-[0_0_0_3px_rgba(163,230,53,0.15)]'
+                      : 'border-slate-300 bg-white group-hover:border-slate-400'
+                  }`}
+                >
+                  {rememberMe && <Check size={12} strokeWidth={3} className="text-[#0f172a]" />}
+                </div>
+                <span className="text-xs text-slate-500 font-medium select-none">Ingat saya</span>
+              </button>
               <a href="#" className="text-xs font-bold text-slate-800 hover:text-slate-600 transition-colors">
                 Lupa Password?
               </a>
